@@ -1,4 +1,4 @@
-![image](http://github.com/heluicare/some-note/raw/master/images/logo.jpg)
+![image](https://github.com/heluicare/some-note/raw/master/images/logo.jpg)
 Once in a while you want to have a test web development environment in which you can test your ideas more freely. Considering that most server systems we have dealt with are all linux (I don’t know about you) setting up one on a windows system without using the existing WEMP( Windows Nginx Mysql Php) packages was a bit challenging for us. We then wrote this article to for us to have a place to jump to next time we need that. If somebody else finds it helpful even better!
 
 We assume you have a mysql environment ready. You can easily download and install MYSQL for windows at their website.Now get to work:
@@ -6,7 +6,7 @@ We assume you have a mysql environment ready. You can easily download and instal
 Downoad Ngnix
 Grab yourself a copy of the latest version of nginx at their website and extract it to a directory on your PC
 
-![image](http://github.com/heluicare/some-note/raw/master/images/nginxinstall.png)
+![image](https://github.com/heluicare/some-note/raw/master/images/nginxinstall.png)
 
 Mine is installed in :
 
@@ -14,7 +14,7 @@ C:\nginx_php\nginx-1.13.0
 Download PHP
 Grab a copy of PHP at their website as well and put it inside a “php” directory in where you put nginx. You can see the php directory in the image below.
 
-![image](http://github.com/heluicare/some-note/raw/master/images/phpinstall.png)
+![image](https://github.com/heluicare/some-note/raw/master/images/phpinstall.png)
 
 Download the visual studio dependencies:
 At the php download page in the sidebar there is critical info you should know. I quote them here :
@@ -87,7 +87,7 @@ To test your setup just open your favorite browser and type
 localhost
 in the browser window and you should see a default nginx page confirming that your server is now working
 
-![image](http://github.com/heluicare/some-note/raw/master/images/nginxtest.png)
+![image](https://github.com/heluicare/some-note/raw/master/images/nginxtest.png)
 
 Your web directory
 Our nginx server is now configured to use the
@@ -104,7 +104,7 @@ Save the file and in your browser, visit
 localhost/test.php
 and you should see a page showing all the configurations for your php instance as shown below:
 
-![image](http://github.com/heluicare/some-note/raw/master/images/phpinfo.png)
+![image](https://github.com/heluicare/some-note/raw/master/images/phpinfo.png)
 
 Now you have a working local server environment. I hope this has been informative for you and thanks for reading.
 
