@@ -45,13 +45,20 @@ in the nginx directory, the full path for my set up is :
 C:\nginx_php\nginx-1.13.0\conf\nginx.conf
 Open the file and uncomment (remove the #) the lines below :
 
-#location ~ \.php$ {
-#    root           html;
-#    fastcgi_pass   127.0.0.1:9000;
-#    fastcgi_index  index.php;
-#    fastcgi_param  SCRIPT_FILENAME  /scripts$fastcgi_script_name;
-#    include        fastcgi_params;
-#}
+\#location ~ \.php$ {
+
+\#    root           html;
+
+\#    fastcgi_pass   127.0.0.1:9000;
+
+\#    fastcgi_index  index.php;
+
+\#    fastcgi_param  SCRIPT_FILENAME  /scripts$fastcgi_script_name;
+
+\#    include        fastcgi_params;
+
+\#}
+
 next edit fastcgi_param to point to the html directory inside nginx, this directory is where your webpage files will be hosted.My configuration is shown below , adjust according to your needs.
 
 fastcgi_param  SCRIPT_FILENAME  C:/nginx_php/nginx-1.13.0/html$fastcgi_script_name;
@@ -109,6 +116,6 @@ and you should see a page showing all the configurations for your php instance a
 Now you have a working local server environment. I hope this has been informative for you and thanks for reading.
 
 
-from https://www.blikoontech.com/tutorials/how-to-install-nginx-and-php-on-windows
+>from https://www.blikoontech.com/tutorials/how-to-install-nginx-and-php-on-windows
 
 
