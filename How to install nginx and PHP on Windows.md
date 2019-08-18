@@ -1,4 +1,5 @@
 ![image](https://github.com/heluicare/some-note/raw/master/images/logo.jpg)
+
 Once in a while you want to have a test web development environment in which you can test your ideas more freely. Considering that most server systems we have dealt with are all linux (I don’t know about you) setting up one on a windows system without using the existing WEMP( Windows Nginx Mysql Php) packages was a bit challenging for us. We then wrote this article to for us to have a place to jump to next time we need that. If somebody else finds it helpful even better!
 
 We assume you have a mysql environment ready. You can easily download and install MYSQL for windows at their website.Now get to work:
@@ -46,17 +47,11 @@ C:\nginx_php\nginx-1.13.0\conf\nginx.conf
 Open the file and uncomment (remove the #) the lines below :
 
 \#location ~ \.php$ {
-
-\#    root           html;
-
-\#    fastcgi_pass   127.0.0.1:9000;
-
-\#    fastcgi_index  index.php;
-
-\#    fastcgi_param  SCRIPT_FILENAME  /scripts$fastcgi_script_name;
-
-\#    include        fastcgi_params;
-
+  \#    root           html;
+  \#    fastcgi_pass   127.0.0.1:9000;
+  \#    fastcgi_index  index.php;
+  \#    fastcgi_param  SCRIPT_FILENAME  /scripts$fastcgi_script_name;
+  \#    include        fastcgi_params;
 \#}
 
 next edit fastcgi_param to point to the html directory inside nginx, this directory is where your webpage files will be hosted.My configuration is shown below , adjust according to your needs.
