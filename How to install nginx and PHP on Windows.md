@@ -111,6 +111,7 @@ and you should see a page showing all the configurations for your php instance a
 Now you have a working local server environment. I hope this has been informative for you and thanks for reading.
 
 
+
 >from https://www.blikoontech.com/tutorials/how-to-install-nginx-and-php-on-windows
 
 
