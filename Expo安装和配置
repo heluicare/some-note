@@ -1,0 +1,24 @@
+Expo也是一个可以跨平台开发移动设备应用的js框架。和React Native的区别如下：
+
+- expo 基于 React Native 并整合了大量常用的 native module
+- 因其整合了常用 native module ，如不增加额外的 native module 其可支持开发者本地无 Xcode 与 Android IDE 的情况下开发 react native app；
+  也就是说只需要 nodejs 环境，非常便利
+- expo 的 mobile client 提供了非常便利的预览及测试环境（比 test flight 方便多了）
+- 其快捷提供了非常酷的 OTA “热更新 ”功能 https://docs.expo.io/versions/latest/guides/configuring-ota-updates
+- 其云平台提供的 build 服务特方便
+- 如果需要额外 native module 使用 expo 会有些不便，FAQ 里面有说
+
+
+安装和配置
+
+安装expo cli
+npm install -g expo-cli
+
+安装expo app(android/ios)
+https://expo.io/tools
+
+创建项目
+expo init HelloExpo
+然后选择blank模板，name输入helloexpo，再按方向键下键定位到slug，输入hello-expo，回车即开始创建项目
+
+运行项目
