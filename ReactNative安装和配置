@@ -1,8 +1,12 @@
 ReactNative是Facebook2015年推出的一款跨平台的，最终使用Android/IOS本地(native)组件运行的一个JS框架。
 
-ReactNative的安装需要python2.7, node.js 10.x, npm, react-native cli(安装方式npm install -g react-native-cli)
+ReactNative的安装需要python2.7, node.js 10.x, npm, React Native Command Line(安装方式npm install -g react-native-cli)
+(react-native是原生混合开发环境，就是创建项目之后有android,ios文件夹的。
+CRNA模式创建项目之后没有android/ios，只有js文件，运行之后只会出一个二维码，用手机扫瞄进行来看效果，
+由于这个模式最终不能发布到移动设备上，所以只能用来学习语法等等，有的地方叫它沙盒模式。)
 
 安装完成之后，创建项目 react-native init HelloRN
 
 运行项目，手机开启调试模式，连上电脑之后，cd HelloRN，react-native run-android，编译没问题的话自动运行在手机上了。
-(当时使用gradle4.6，com.android.tools.build:gradle:3.2.0死活编译失败，只能用默认的gradle5.5，com.android.tools.build:gradle:3.4.2就能编译成功)
+(当时使用gradle4.6，com.android.tools.build:gradle:3.2.0死活编译失败，
+只能用默认的gradle5.5，com.android.tools.build:gradle:3.4.2就能编译成功)
