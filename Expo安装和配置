@@ -21,4 +21,10 @@ https://expo.io/tools
 expo init HelloExpo
 然后选择blank模板，name输入helloexpo，再按方向键下键定位到slug，输入hello-expo，回车即开始创建项目
 
+问题：
+当时卡在这里好久，现像是等待了很久总是下载依赖包失败，尝试过换成taobao镜像，用VPN都没用，最后安装上了nrm模块，使用nrm test查看哪个镜像速度快，
+就使用哪个，这里可能需要反复尝试，当时我是用了cnpm这个镜像成功了。官方在这里有说到安装yarn，没试过，不知道有没有效果。
+
 运行项目
+expo start
+会自动打开http://localhost:19002/页面，左边有个二维码，手机可以扫一扫
