@@ -35,3 +35,7 @@ react-native init HelloRN
 问题
 当时使用gradle4.6，com.android.tools.build:gradle:3.2.0死活编译失败，只能用默认的
 gradle5.5，com.android.tools.build:gradle:3.4.2就能编译成功。
+
+
+
+
