@@ -28,3 +28,7 @@ expo init HelloExpo
 运行项目
 expo start
 会自动打开http://localhost:19002/页面，左边有个二维码，手机可以扫一扫
+
+
+
+
