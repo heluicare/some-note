@@ -1,0 +1,73 @@
+# -*- coding: cp936 -*-
+
+from Tkinter import *
+import Tkinter as tkinter
+import os
+import sys
+
+class gradleFind(object):
+    def __init__(self, master=None):
+        # 创建主窗口,用于容纳其它组件
+        self.root = tkinter.Tk()
+        self.root.resizable(False, False)
+        #self.root.geometry('300x100')
+        # 给主窗口设置标题内容
+        self.root.title("Gradle Version Finder")
+        # 创建一个输入框,并设置尺寸
+        self.fm1 = Frame(master)
+        self.label1 = tkinter.Label(self.fm1, text='Gradle Name:')
+        self.label2 = tkinter.Label(self.fm1, text='Version:')
+
+        self.fm2 = Frame(master)
+        default1 = StringVar(self.fm2, value='com.android.support:appcompat-v7')
+        self.name_input = tkinter.Entry(self.fm2, textvariable=default1, width=40)
+        # 创建一个回显文本
+        self.display_info = tkinter.Entry(self.fm2, width=40)
+        # 创建一个查询结果的按钮
+        self.result_button = tkinter.Button(self.fm2, command = self.find_gradle, text = "Find", width=8)
+
+    # 完成布局
+    def gui_arrang(self):
+        self.label1.pack(pady=10)
+        self.label2.pack(pady=2)
+        self.fm1.pack(side=LEFT, fill=BOTH, expand=YES, padx=4)
+        self.name_input.pack(pady=10)
+        self.display_info.pack(pady=2)
+        self.result_button.pack(pady=10)
+        self.fm2.pack(side=LEFT, padx=4)
+
+    # 根据com.android.support:support-v4查找版本号
+    def find_gradle(self):
+        PATH = "C:/Users/Administrator/.gradle/caches/modules-2/files-2.1"
+        strs = self.name_input.get().split(":")
+        list_package = os.listdir(PATH)
+        for package in list_package:
+            if package == strs[0]:
+                list_clsname = os.listdir(PATH + "/" + package)
+                for clsname in list_clsname:
+                    if clsname == strs[1]:
+                        list_version = os.listdir(PATH + "/" + package + "/" + clsname)
+                        flag = True
+                        for version in list_version:
+                            flag = False
+                            self.display_info.delete(0, END)
+                            self.display_info.insert(0,version)
+                        if flag:
+                            self.display_info.insert(0,'Not Found !')
+
+
+def main():
+    # 初始化对象
+    FL = gradleFind()
+    # 进行布局
+    FL.gui_arrang()
+    # 主程序执行
+    tkinter.mainloop()
+    pass
+
+
+if __name__ == "__main__":
+    main()
+
+
+
