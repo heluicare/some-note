@@ -10,18 +10,22 @@ class gradleFind(object):
         # 创建主窗口,用于容纳其它组件
         self.root = tkinter.Tk()
         #禁止最大化
-        self.root.resizable(False, False)
-        #窗口大小为390x120,坐标为电脑屏幕的(966,0)
-        self.root.geometry('390x120+966+0')
+        #self.root.resizable(False, False)
+        #窗口大小为390x114,坐标为电脑屏幕的(966,0)
+        self.root.geometry('390x114+966+0')
         # 给主窗口设置标题内容
         self.root.title("Gradle Version Finder")
         # 创建一个容器，存放label1,label2
         self.fm1 = Frame(master)
+        self.label0 = tkinter.Label(self.fm1, text='Gradle Path:')
         self.label1 = tkinter.Label(self.fm1, text='Gradle Name:')
         self.label2 = tkinter.Label(self.fm1, text='Version:')
 
         # 创建一个容器，存放name_input,display_info,result_button
         self.fm2 = Frame(master)
+        # 创建一个输入框,并设置尺寸
+        default0 = StringVar(self.fm2, value='C:/Users/Administrator/.gradle/caches/modules-2/files-2.1')
+        self.gradle_path = tkinter.Entry(self.fm2, textvariable=default0, width=40)
         default1 = StringVar(self.fm2, value='com.android.support:appcompat-v7')
         # 创建一个输入框,并设置尺寸
         self.name_input = tkinter.Entry(self.fm2, textvariable=default1, width=40)
@@ -32,17 +36,19 @@ class gradleFind(object):
 
     # 完成布局
     def gui_arrang(self):
-        self.label1.pack(pady=10)
-        self.label2.pack(pady=2)
-        self.fm1.pack(side=LEFT, fill=BOTH, expand=YES, padx=4)
-        self.name_input.pack(pady=10)
-        self.display_info.pack(pady=2)
-        self.result_button.pack(pady=10)
-        self.fm2.pack(side=LEFT, padx=4)
+        self.label0.pack()
+        self.label1.pack()
+        self.label2.pack()
+        self.fm1.pack(side=LEFT, fill=BOTH, expand=YES, padx=4, pady=10)
+        self.gradle_path.pack()
+        self.name_input.pack(pady=2)
+        self.display_info.pack()
+        self.result_button.pack()
+        self.fm2.pack(side=LEFT, fill=BOTH, expand=YES,  padx=4, pady=10)
 
     # 根据com.android.support:support-v4查找版本号
     def find_gradle(self):
-        PATH = "C:/Users/Administrator/.gradle/caches/modules-2/files-2.1"
+        PATH = self.gradle_path.get()
         strs = self.name_input.get().split(":")
         list_package = os.listdir(PATH)
         flag = False
@@ -66,6 +72,7 @@ def main():
     FL = gradleFind()
     # 进行布局
     FL.gui_arrang()
+    FL.find_gradle()
     # 主程序执行
     tkinter.mainloop()
     pass
