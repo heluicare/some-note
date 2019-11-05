@@ -11,8 +11,8 @@ class gradleFind(object):
         self.root = tkinter.Tk()
         #禁止最大化
         self.root.resizable(False, False)
-        #窗口大小为390x120,坐标为电脑屏幕的(966,368)
-        self.root.geometry('390x120+966+368')
+        #窗口大小为390x120,坐标为电脑屏幕的(966,0)
+        self.root.geometry('390x120+966+0')
         # 给主窗口设置标题内容
         self.root.title("Gradle Version Finder")
         # 创建一个容器，存放label1,label2
