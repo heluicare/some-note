@@ -13,13 +13,15 @@ class gradleFind(object):
         #self.root.geometry('300x100')
         # 给主窗口设置标题内容
         self.root.title("Gradle Version Finder")
-        # 创建一个输入框,并设置尺寸
+        # 创建一个容器，存放label1,label2
         self.fm1 = Frame(master)
         self.label1 = tkinter.Label(self.fm1, text='Gradle Name:')
         self.label2 = tkinter.Label(self.fm1, text='Version:')
 
+        # 创建一个容器，存放name_input,display_info,result_button
         self.fm2 = Frame(master)
         default1 = StringVar(self.fm2, value='com.android.support:appcompat-v7')
+        # 创建一个输入框,并设置尺寸
         self.name_input = tkinter.Entry(self.fm2, textvariable=default1, width=40)
         # 创建一个回显文本
         self.display_info = tkinter.Entry(self.fm2, width=40)
