@@ -9,8 +9,10 @@ class gradleFind(object):
     def __init__(self, master=None):
         # 创建主窗口,用于容纳其它组件
         self.root = tkinter.Tk()
+        #禁止最大化
         self.root.resizable(False, False)
-        #self.root.geometry('300x100')
+        #窗口大小为390x120,坐标为电脑屏幕的(966,368)
+        self.root.geometry('390x120+966+368')
         # 给主窗口设置标题内容
         self.root.title("Gradle Version Finder")
         # 创建一个容器，存放label1,label2
@@ -43,19 +45,20 @@ class gradleFind(object):
         PATH = "C:/Users/Administrator/.gradle/caches/modules-2/files-2.1"
         strs = self.name_input.get().split(":")
         list_package = os.listdir(PATH)
+        flag = False
         for package in list_package:
             if package == strs[0]:
                 list_clsname = os.listdir(PATH + "/" + package)
                 for clsname in list_clsname:
                     if clsname == strs[1]:
                         list_version = os.listdir(PATH + "/" + package + "/" + clsname)
-                        flag = True
                         for version in list_version:
-                            flag = False
+                            flag = True
                             self.display_info.delete(0, END)
-                            self.display_info.insert(0,version)
-                        if flag:
-                            self.display_info.insert(0,'Not Found !')
+                            self.display_info.insert(0, version)
+        if flag==False:
+            self.display_info.delete(0, END)
+            self.display_info.insert(0,'Not Found !')
 
 
 def main():
@@ -70,6 +73,5 @@ def main():
 
 if __name__ == "__main__":
     main()
-
 
 
