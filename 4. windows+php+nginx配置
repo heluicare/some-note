@@ -69,7 +69,6 @@ location / {
 
 整个nginx.conf看起来是这样：
 
-```
  #user  nobody;
  worker_processes  1;
  
@@ -212,7 +211,7 @@ location / {
      #}
  
  }
-```
+
 
 
 另外：
