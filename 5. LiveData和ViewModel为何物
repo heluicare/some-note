@@ -1,0 +1,91 @@
+什么是 LiveData
+LiveData 是一个可观测的数据持有类，但是不同于通常的被观察者，LiveData 具有生命周期感知能力。通俗点说，LiveData 就是具有 “Live” 能力的 “Data” 持有类。当它所持有的数据发生改变的时候，并且 Lifecycle 对象(比如 Activity 或者 Fragment 等)处于活跃状态(STARTED 或者 RESUMED），LiveData 将立即通知观察者数据发生了变化。也就是说，比普通观察者多了个生命周期感知能力。
+LiveData 的优势
+
+确保UI和数据状态匹配。当数据发生改变的时候，会自动通知UI进行更新。
+避免内存泄漏Observers 是绑定到 Lifecycle 对象上的，当与其关联的 lifecycle 被销毁的时候，它们会自动被清理。
+避免了由于 Activity 停止而导致的闪退当 Observer 所绑定的 Lifecycle 处于非活跃状态时，比如处于返回栈中的 Activity，它将不会收到任何 LiveData 事件。
+不再需要手动处理生命周期UI 组件只需要对相关的数据进行监听，不需要关心是否应该暂停或者恢复监听。LiveData 具有生命周期感知能力，它会自动对这些进行管理。
+数据总处于最新状态如果一个 Lifecycle 处于非活跃状态，那当它由非活跃状态变为活跃状态的时候，它将收到最新的数据。比如一个 Activity 由后台转为前台，这时候它将立即收到最新的数据
+系统配置更改时，进行数据的保存和恢复，及 UI 的恢复。当 Activity 或者 Fragment 由于配置更改而重新创建时（比如旋转屏幕等），它将收到最新的可用数据。这里简单提一点，这个有点是需要配合 ViewModel 使用的，严格来说，它主要是 ViewModel 的优点
+资源共享我们可以使用单例模式来扩展 LiveData，这样就能达到数据变化的时候，通知所有的观察者。
+
+为了便于理解，关于 LiveData 和 ViewModel 的关系，我这里先说结论：
+LiveData 的作用是在使得数据能具有生命周期感知能力，在 Activity 等变为活跃状态的时候，自动回调观察者中的回调方法。也就是说对数据的变化进行实时监听。而 ViewModel 的作用则是，当因系统配置发生改变导致 Activity 重建的时候（比如旋转屏幕），能对 LiveData 进行正确的保存和恢复。仅此而已。
+LiveData 的使用
+一般来讲，LiveData 是需要配合 ViewModel 来使用的，但千万不要觉得 LiveData 就一定结合  ViewModel。上面也说道二者只是功能互补。这里为了便于理解，我们先单独学习下 LiveData 的使用。
+LiveData 的使用分三步：
+
+创建一个 LiveData 的实例，让它持有一种特定的数据类型，比如 String 或者 User .通常是将 LiveData 放在ViewModel中使用的（这里我们先单独使用）。
+创建一个 Observer 对象，并实现其 onChanged(…) 方法，在这里定义当 LiveData 持有的数据发生改变的时候，应该做何操作。可以在这进行UI的更新，一般 Observer 是在 UI controller 中创建，比如 Activity 或者 Fragment 。
+通过创建的 LiveData 实例的 observe(…)方法，将 Observer 对象添加进 LiveData 中。方法的原型为observe( LifecycleOwner owner, Observer observer)，第一个参数是 LifecycleOwner对象，这也是 LiveData 能监听生命周期的能力来源。第二个参数就是我们的监听器对象 Observer 。
+
+添加 LiveData 和 ViewModel 的依赖：
+1    implementation "android.arch.lifecycle:extensions:1.1.1"
+当然，你也可以分别单独集成 LiveData 和 ViewModel：
+1implementation "android.arch.lifecycle:livedata:1.1.1"
+1implementation "android.arch.lifecycle:viewmodel:1.1.1"
+接下来就对照上面讲的三步走战略，创建如下代码：
+ 1public class MainActivity extends AppCompatActivity implements View.OnClickListener { 2 3    private static final String TAG = "MainActivity"; 4 5    private MutableLiveData<Integer> mNumberLiveData; 6    private TextView mTvNumber; 7    private Button mBtnStart; 8 9    @Override10    protected void onCreate(Bundle savedInstanceState) {11        super.onCreate(savedInstanceState);12        setContentView(R.layout.activity_main);13        mTvNumber = findViewById(R.id.tv_number);14        mBtnStart = findViewById(R.id.btn_start);15        mBtnStart.setOnClickListener(this);161718        mNumberLiveData = new MutableLiveData<>();1920        mNumberLiveData.observe(this, new Observer<Integer>() {21            @Override22            public void onChanged(@Nullable Integer integer) {23                mTvNumber.setText("" + integer);24                Log.d(TAG, "onChanged: " + integer);25            }26        });27    }2829    @Override30    public void onClick(View v) {31        new Thread() {32            @Override33            public void run() {34                super.run();35                int number = 0;36                while (number < 5) {37                    try {38                        Thread.sleep(3000);39                    } catch (InterruptedException e) {40                        e.printStackTrace();41                    }42                    number++;43                    mNumberLiveData.postValue(number);44                }45            }46        }.start();47    }48}复制代码
+这里，我们在 onCreate 方法中创建了一个 MutableLiveData 类型的变量 mNumberLiveData ，并将其泛型指定为 Integer，通过其observe(...)方法把 this 传进去（this为 AppCompatActivity,实现了 LifecycleOwner 接口，支持包为 28.0.0），并传进去一个 Observer,在其onChanged(...)方法中，我们将变化后的数据 integer 设置给 TextView 显示。为了便于观察，我们同时在控制台打印一行对应的日志。
+
+Demo 的界面很简单，就是一个按钮，一个 TextView ,点击按钮，开启一个子线程，每过3秒通过postValue(...)修改 LiveData 中的值(如果是在UI线程，可以直接通过 setValue(...)来修改)。
+这里我们点击开始，并在数字还没变为 5 的时候，就按Home键进入后台，等过一段时间之后，在进入页面，会发现页面最终显示为数字 “5”，但是打印的结果并不是连续的1~5,而是有中断：
+-w785
+这也证明了当程序进入后台，变为 inactive 状态时，并不会收到数据更新的通知，而是在重新变为 active 状态的时候才会收到通知，并执行onChanged(...)方法。
+上面可以看到，我们使用 LiveData 的时候，实际使用的是它的子类 MutableLiveData，LiveData 是一个接口，它并没有给我们暴露出来方法供我们对数据进行修改。如果我们需要对数据修改的时候，需要使用它的具体实现类 MutableLiveData，其实该类也只是简单的将 LiveData 的 postValue(...)和 setValue(...)暴露了出来：
+ 1public class MutableLiveData<T> extends LiveData<T> { 2    @Override 3    public void postValue(T value) { 4        super.postValue(value); 5    } 6 7    @Override 8    public void setValue(T value) { 9        super.setValue(value);10    }11}复制代码
+MutableLiveData<T>其实是对数据进行了一层包裹。在它的泛型中可以指定我们的数据类。可以存储任何数据，包括实现了 Collections 接口的类，比如 List 。
+扩展 LiveData
+有时候我们需要在 observer 的 lifecycle 处于 active 状态时做一些操作，那么我们就可以通过继承 LiveData 或者 MutableLiveData，然后覆写其onActive()和onInactive()方法。这两个方法的默认实现均为空。像下面这样：
+ 1public class StockLiveData extends LiveData<BigDecimal> { 2    private StockManager stockManager; 3 4    private SimplePriceListener listener = new SimplePriceListener() { 5        @Override 6        public void onPriceChanged(BigDecimal price) { 7            setValue(price); 8        } 9    };1011    public StockLiveData(String symbol) {12        stockManager = new StockManager(symbol);13    }1415    @Override16    protected void onActive() {17        stockManager.requestPriceUpdates(listener);18    }1920    @Override21    protected void onInactive() {22        stockManager.removeUpdates(listener);23    }24}复制代码
+LiveData 具有生命周期感知能力，能在 Activity 销毁的时候自动取消监听，这也意味着它可以用来在多个 Activity 间共享数据。我们可以借助单例来实现，这里直接饮用官方 Demo ：
+ 1public class StockLiveData extends LiveData<BigDecimal> { 2    private static StockLiveData sInstance; 3    private StockManager stockManager; 4 5    private SimplePriceListener listener = new SimplePriceListener() { 6        @Override 7        public void onPriceChanged(BigDecimal price) { 8            setValue(price); 9        }10    };1112    @MainThread13    public static StockLiveData get(String symbol) {14        if (sInstance == null) {15            sInstance = new StockLiveData(symbol);16        }17        return sInstance;18    }1920    private StockLiveData(String symbol) {21        stockManager = new StockManager(symbol);22    }2324    @Override25    protected void onActive() {26        stockManager.requestPriceUpdates(listener);27    }2829    @Override30    protected void onInactive() {31        stockManager.removeUpdates(listener);32    }33}复制代码
+转换 LiveData
+有时候，我们需要在将 LiveData 中存储的数据分发给 Observer 之前进行一些修改。比如我们例子中拿到的是 Integer 类型的返回值，我们设置进 TextView 的时候，直接使用mTvNumber.setText(integer)会报错，需要使用mTvNumber.setText("" + integer)这种形式，但我想在这里直接拿到已经处理过的 String 数据，拿到就能直接用，而不需要再在这里手动拼。我们可以通过Transformations类的 map 操作符来实现这个功能。
+原始的代码为：
+1        mNumberLiveData = new MutableLiveData<>();23        mNumberLiveData.observe(this, new Observer<Integer>() {4            @Override5            public void onChanged(@Nullable Integer integer) {6                mTvNumber.setText("" + integer);7                Log.d(TAG, "onChanged: " + integer);8            }9        });复制代码
+使用Transformations.map(...)改造之后的代码：
+ 1        mNumberLiveData = new MutableLiveData<Integer>(); 2 3        Transformations.map(mNumberLiveData, new Function<Integer, String>() { 4            @Override 5            public String apply(Integer integer) { 6                return "" + integer; 7            } 8        }).observe(this, new Observer<String>() { 9            @Override10            public void onChanged(@Nullable String s) {11                mTvNumber.setText(s);12                Log.d(TAG, "onChanged: " + s);13            }14        });复制代码
+这就实现了将一种类型的数据转化为另一种类型的数据。map 操作符会返回一个改造之后的 LiveData，直接对这个 LiveData 进行监听即可。这里的map操作符类似于 RxJava 的map。
+但有时候我们并不只是需要简单的把数据由一种类型转为另一种类型。我们可能需要的更高级一点。
+比如，我们一方面需要一个存储 userId 的 LiveData，另一方面又需要维护一个存储 User 信息的 LiveData，而后者的 User 则是根据 userId 来从数据库中查找的，二者需要对应。这时候我们就可以使用Transformations类的switchMap(...)操作符。
+1MutableLiveData<String> userIdLiveData = new MutableLiveData<>();23LiveData<User> userLiveData = Transformations.switchMap(userIdLiveData, new Function<String, LiveData<User>>() {4    @Override5    public LiveData<User> apply(String userId) {6         // 根据 userId 返回一个 LiveData<User>，可以通过Room来获取7        return getUser(userId);8    }9});复制代码
+这里，我们在覆写的apply(...)方法中，每次 userId 发生变化之后，会自动通过  getUser(userId) 去获取一个封装有 User 对象的 LiveData。如果是从数据库获取的话，使用 Google 推出的配套的数据库组件 Room 会比较爽，因为它能直接返回一个 LiveData。关于 Room，有时间的话之后再写文章讲解。
+从上面可以看出，LiveData 包中提供的 Transformations 非常有用，能让我们的整个调用过程变成链式。但 Transformations 只提供了map(...)和switchMap(...)两个方法，如果我们有其他更复杂的需求，就需要自己通过MediatorLiveData类来创建自己的transformations。话说回来，其实上面两个方法的内部，就是通过MediatorLiveData来实现的，通过 MediatorLiveData 进行了一次转发。这里贴出Transformations的源码：
+ 1public class Transformations { 2 3    private Transformations() { 4    } 5 6 7    @MainThread 8    public static <X, Y> LiveData<Y> map(@NonNull LiveData<X> source, 9            @NonNull final Function<X, Y> func) {10        final MediatorLiveData<Y> result = new MediatorLiveData<>();11        result.addSource(source, new Observer<X>() {12            @Override13            public void onChanged(@Nullable X x) {14                result.setValue(func.apply(x));15            }16        });17        return result;18    }192021    @MainThread22    public static <X, Y> LiveData<Y> switchMap(@NonNull LiveData<X> trigger,23            @NonNull final Function<X, LiveData<Y>> func) {24        final MediatorLiveData<Y> result = new MediatorLiveData<>();25        result.addSource(trigger, new Observer<X>() {26            LiveData<Y> mSource;2728            @Override29            public void onChanged(@Nullable X x) {30                LiveData<Y> newLiveData = func.apply(x);31                if (mSource == newLiveData) {32                    return;33                }34                if (mSource != null) {35                    result.removeSource(mSource);36                }37                mSource = newLiveData;38                if (mSource != null) {39                    result.addSource(mSource, new Observer<Y>() {40                        @Override41                        public void onChanged(@Nullable Y y) {42                            result.setValue(y);43                        }44                    });45                }46            }47        });48        return result;49    }50}复制代码
+源码比较简单，不再详细讲解。
+它里面其实主要用的就是MediatorLiveData，通过该类我们能组合多个 LiveData 源。当任何一个 LiveData 源发生改变的时候，MediatorLiveData的 Observers 都会被触发，这点比较实用。比如我们有两个 LiveData,一个是从数据库获取，一个是从网络获取。通过MediatorLiveData就能做到，当二者任何一个获取到最新数据，就去触发我们的监听。
+顺便也贴下MediatorLiveData的源码，它继承自MutableLiveData：
+ 1public class MediatorLiveData<T> extends MutableLiveData<T> { 2    private SafeIterableMap<LiveData<?>, Source<?>> mSources = new SafeIterableMap<>(); 3 4    @MainThread 5    public <S> void addSource(@NonNull LiveData<S> source, @NonNull Observer<S> onChanged) { 6        Source<S> e = new Source<>(source, onChanged); 7        Source<?> existing = mSources.putIfAbsent(source, e); 8        if (existing != null && existing.mObserver != onChanged) { 9            throw new IllegalArgumentException(10                    "This source was already added with the different observer");11        }12        if (existing != null) {13            return;14        }15        if (hasActiveObservers()) {16            e.plug();17        }18    }192021    @MainThread22    public <S> void removeSource(@NonNull LiveData<S> toRemote) {23        Source<?> source = mSources.remove(toRemote);24        if (source != null) {25            source.unplug();26        }27    }2829    @CallSuper30    @Override31    protected void onActive() {32        for (Map.Entry<LiveData<?>, Source<?>> source : mSources) {33            source.getValue().plug();34        }35    }3637    @CallSuper38    @Override39    protected void onInactive() {40        for (Map.Entry<LiveData<?>, Source<?>> source : mSources) {41            source.getValue().unplug();42        }43    }4445    private static class Source<V> implements Observer<V> {46        final LiveData<V> mLiveData;47        final Observer<V> mObserver;48        int mVersion = START_VERSION;4950        Source(LiveData<V> liveData, final Observer<V> observer) {51            mLiveData = liveData;52            mObserver = observer;53        }5455        void plug() {56            mLiveData.observeForever(this);57        }5859        void unplug() {60            mLiveData.removeObserver(this);61        }6263        @Override64        public void onChanged(@Nullable V v) {65            if (mVersion != mLiveData.getVersion()) {66                mVersion = mLiveData.getVersion();67                mObserver.onChanged(v);68            }69        }70    }71}复制代码
+这里顺便提一句，如果想在数据更新的时候让 Observer立即得到通知，也就是说忽略生命周期状态，这时候我们可以使用 LiveData 的observeForever(Observer<T> observer)方法。
+LiveData 往往是需要结合 ViewModel才能发挥出更大的威力。下面就接着介绍 ViewModel 的知识，以及二者的搭配使用。
+什么是 ViewModel
+简单来讲，ViewModel 是一种用来存储和管理UI相关数据的类。但不同的是，它支持在系统配置发生改变的时候自动对数据进行保存。当然，这要配合 LiveData。
+我们知道，在屏幕旋转的时候，会导致Activity/Fragment重绘，会导致我们之前的数据丢失。就比如，如果我们使用EditText,在里面输入了内容，但是屏幕旋转的时候，会发现其中的text内容被清空了。如果你发现没清空，可能使用的是 support 包下的控件，或者 Activity 继承自 AppCompatActivity，并且给该控件添加了 id。系统对一些简单的数据进行了恢复（其实是在EditText的父类TextView进行的恢复）。
+对于一些简单的数据，我们可以通过在Activity的onSaveInstanceState()方法中存储，然后在onCreate()中进行恢复，但是这种方式只适合存储少量的数据，并且是能被序列化和反序列化的数据。而对那些大量的数据则不适用，比如一个 User 或者 Bitmap 的 List。
+此外，它也使得 View 的数据持有者和 UI controller 逻辑更加分离，便于解耦和测试。
+LiveData 结合 ViewModel 使用
+之前我们是单独使用 LiveData，这里配合ViewModel使用：
+ 1public class MyViewModel extends ViewModel { 2    private MutableLiveData<List<User>> users; 3    public LiveData<List<User>> getUsers() { 4        if (users == null) { 5            users = new MutableLiveData<List<User>>(); 6            loadUsers(); 7        } 8        return users; 9    }1011    private void loadUsers() {12        // Do an asynchronous operation to fetch users.13    }14}复制代码
+可以看到，这里我们创建一个类，继承自ViewModel，然后在里面存储我们需要的MutableLiveData字段。注意，getUsers()方法返回的类型是LiveData而非 MutableLiveData，因为我们一般不希望在ViewModel 外面对数据进行修改，所以返回的是一个不可变的 LiveData 引用。如果想对数据进行更改，我们可以暴露出来一个setter方法。
+接下来可以按照如下的方式获取 ViewModel：
+ 1public class MyActivity extends AppCompatActivity { 2    public void onCreate(Bundle savedInstanceState) { 3        // Create a ViewModel the first time the system calls an activity's onCreate() method. 4        // Re-created activities receive the same MyViewModel instance created by the first activity. 5 6        MyViewModel model = ViewModelProviders.of(this).get(MyViewModel.class); 7        model.getUsers().observe(this, users -> { 8            // update UI 9        });10    }11}复制代码
+我们在onCreate()方法中通过ViewModelProviders.of(this).get(MyViewModel.class);这行代码来获取一个MyViewModel实例。之后又通过该实例暴露出来的getter方法获取LiveData 实例。这里要注意，当Activity重建的时候，虽然 onCreate() 方法会重新走一遍，但是这个MyViewModel实例，仍然是第一次创建的那个实例，在ViewModelProviders.of(this).get(***.class)中的get方法中进行了缓存。之后进行源码解析的时候会详细讲解。先看下下面的一张图，了解下ViewModel 的整个生命周期：
+viewmodel-lifecycle
+ViewModel 最终消亡是在 Activity 被销毁的时候，会执行它的onCleared()进行数据的清理。
+Fragment 间进行数据共享
+Fragment 间共享数据比较常见。一种典型的例子是屏幕左侧是一个 Fragment，其中存储了一个新闻标题列表，我们点击一个 item，在右侧的 Fragment 中显示该新闻的详细内容。这种场景在美团等订餐软件中也很常见。
+通过 ViewModel 将使得数据在各 Fragment 之间的共享变得更加简单。
+我们需要做的仅仅是在各 Fragment 的 onCreate() 方法中通过：
+1ViewModelProviders.of(getActivity()).get(***ViewModel.class);
+来获取 ViewModel ,注意，of(...)方法中传入的是二者所在的activity。具体可以参考如下官方代码：
+ 1public class SharedViewModel extends ViewModel { 2    private final MutableLiveData<Item> selected = new MutableLiveData<Item>(); 3 4    public void select(Item item) { 5        selected.setValue(item); 6    } 7 8    public LiveData<Item> getSelected() { 9        return selected;10    }11}121314public class MasterFragment extends Fragment {15    private SharedViewModel model;16    public void onCreate(Bundle savedInstanceState) {17        super.onCreate(savedInstanceState);18        // 传入 activity19        model = ViewModelProviders.of(getActivity()).get(SharedViewModel.class);20        itemSelector.setOnClickListener(item -> {21            model.select(item);22        });23    }24}2526public class DetailFragment extends Fragment {27    public void onCreate(Bundle savedInstanceState) {28        super.onCreate(savedInstanceState);29        // 传入 activity30        SharedViewModel model = ViewModelProviders.of(getActivity()).get(SharedViewModel.class);31        model.getSelected().observe(this, { item ->32           // Update the UI.33        });34    }35}复制代码
+Android 3.0 中引入了 Loader 机制，让开发者能轻松在 Activity 和 Fragment 中异步加载数据。但事实上用的人并不多。现在，它几乎可以退出历史舞台了。ViewModel配合Room数据库以及LiveData,完全可以替代Loader，在SDK28里，也越来越多的用Loader也越来越多的被替代。
+但要注意，ViewModel能用来替换Loader，但是它却并不是设计用来替换onSaveInstanceState(...)的。关于数据持久化以及恢复UI状态等，可以参考下Medium上的这篇文章，讲的简直不能再好了：ViewModels: Persistence, onSaveInstanceState(), Restoring UI State and Loaders
+总结
+通常 LiveData 是需要配合 ViewModel 使用的。ViewModel 负责在系统配置更改时保存和恢复 LiveData，而 LiveData 则负责在生命周期状态发生改变的时候，对数据的变化进行监听。
+写到这里算是把 LiveData 和 ViewModel 的使用讲完了。这里我在开篇故意单独把 LiveData 和 ViewModel 分开讲解，相比较官网更加容易理解。但如果想对二者进行详细了解，还是建议把官方文档认真的多阅读几遍。
+
+
+原文链接：https://juejin.im/post/5ca9f9156fb9a05e3d0a8aea
